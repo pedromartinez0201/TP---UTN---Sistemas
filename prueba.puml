@@ -4,4 +4,9 @@ class Clase1 {
   -atributo1
 }
 
+class Clase2 {
+  +metodo2()
+  -atributo2
+}
+
 @enduml
