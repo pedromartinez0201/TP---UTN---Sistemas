@@ -13,9 +13,7 @@ enum EstadoCuestionario{
   EN_CURSO
   COMPLETADO
 }
-title TP
 
-caption Modulo Gestion de Competencias y Gestion de Preguntas
 class Pregunta {
     -id: Long
     -enunciado: String
@@ -58,6 +56,46 @@ class CompetenciaTecnica{
 Competencia <|-- CompetenciaActitudinal
 Competencia <|-- CompetenciaTecnica
 
+class Puesto{
+  -id: Long
+  -nombre: String
+  -descripcion: String
+}
+
+class CompetenciaRequerida{
+  -puntajeMinimo: Double
+}
+
+Puesto "1" *-- "1..*" CompetenciaRequerida : define >
+CompetenciaRequerida "1..*" --> "1" Competencia : refiere a >
+
+Competencia "1" *-- "2..*" Factor : se compone de >
+Pregunta "1" *-- "2..*" OpcionRespuesta : tiene >
+Pregunta ..> TipoPregunta
+Pregunta "1" --> "1" Competencia : pertenece >
+
+class Empresa{
+  -nombre: String
+}
+
+Puesto "1..*" --> "1" Empresa : en >
+
+class Candidato{
+  -nroCandidato: Long
+  -apellido: String
+  -nombre: String
+  -nroDocumento: String
+  -tipoDocumento: String
+  -fechaNacimiento: Date
+  -genero: String
+  -nacionalidad: String
+  -email: String
+  -escolaridad: String
+  -eliminado: Boolean
+}
+
+Resultado "1" --> "*" Candidato : de >
+
 class Resultado{
   -id: Long
   -puntajeObtenido: Double
@@ -80,13 +118,9 @@ class RespuestaCandidato {
 
 Cuestionario "1" *-- "1..*" BloqueCuestionario : divide en >
 
-'Cuestionario "*" --> "1" Candidato : rendido por >
-'Cuestionario "*" --> "1" Puesto : asociado a >
-
 BloqueCuestionario "1" *-- "1..*" RespuestaCandidato : contiene >
 
 RespuestaCandidato "*" --> "1" Pregunta : evalúa >
-RespuestaCandidato "*" --> "1" OpcionRespuesta : selecciona >
 
 Cuestionario "1" *-- "1" Resultado : genera >
 Cuestionario ..> EstadoCuestionario 
