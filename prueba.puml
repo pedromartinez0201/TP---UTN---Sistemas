@@ -87,11 +87,12 @@ class Candidato{
   -nroDocumento: String
   -tipoDocumento: String
   -fechaNacimiento: Date
-  -genero: String
+  -genero: Char
   -nacionalidad: String
   -email: String
   -escolaridad: String
   -eliminado: Boolean
+  -clave: String
 }
 
 Resultado "1" --> "*" Candidato : de >
