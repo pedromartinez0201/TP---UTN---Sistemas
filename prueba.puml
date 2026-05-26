@@ -13,6 +13,50 @@ enum EstadoCuestionario{
   EN_CURSO
   COMPLETADO
 }
+title TP
+
+caption Modulo Gestion de Competencias y Gestion de Preguntas
+class Pregunta {
+    -id: Long
+    -enunciado: String
+    -tipo: TipoPregunta
+    +crearConGenAI(): void
+}
+
+enum TipoPregunta{
+    OPCION_MULTIPLE
+    VERDADERO_FALSO
+    ESCALA
+}
+
+class OpcionRespuesta{
+    -id: Long
+    -texto: String
+    -puntaje: Double
+    -orden: Integer
+}
+
+abstract class Competencia {
+    -id: Long
+    -nombre: String 
+    -descripcion: String
+    +getTipo() : String
+}
+
+class CompetenciaActitudinal {
+    -comportamiento: String
+}
+class Factor{
+    -id: Long 
+    -nombre: String
+    -descripcion: String
+}
+class CompetenciaTecnica{
+    -tecnologia: String
+}
+
+Competencia <|-- CompetenciaActitudinal
+Competencia <|-- CompetenciaTecnica
 
 class Resultado{
   -id: Long
@@ -34,20 +78,15 @@ class RespuestaCandidato {
   -fechaRespuesta: Date
 }
 
-class Candidato {}
-class Puesto {}
-class Pregunta {}
-class Opcion {}
-
 Cuestionario "1" *-- "1..*" BloqueCuestionario : divide en >
 
-Cuestionario "*" --> "1" Candidato : rendido por >
-Cuestionario "*" --> "1" Puesto : asociado a >
+'Cuestionario "*" --> "1" Candidato : rendido por >
+'Cuestionario "*" --> "1" Puesto : asociado a >
 
 BloqueCuestionario "1" *-- "1..*" RespuestaCandidato : contiene >
 
 RespuestaCandidato "*" --> "1" Pregunta : evalúa >
-RespuestaCandidato "*" --> "1" Opcion : selecciona >
+RespuestaCandidato "*" --> "1" OpcionRespuesta : selecciona >
 
 Cuestionario "1" *-- "1" Resultado : genera >
 Cuestionario ..> EstadoCuestionario 
