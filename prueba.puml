@@ -1,12 +1,55 @@
-@startum  Diagrama
-class Clase1 {
-  +metodo1()
-  -atributo1
+@startuml Diagrama
+
+class Cuestionario {
+  -id: Long 
+  -fechaCreacion: Date
+  -estado: EstadoCuestionario
+  -cantidadPreguntasPorFactor: Integer 
+  -cantidadPreguntasPorBloque: Integer
 }
 
-class Clase2 {
-  +metodo2()
-  -atributo2
+enum EstadoCuestionario{
+  PENDIENTE
+  EN_CURSO
+  COMPLETADO
 }
+
+class Resultado{
+  -id: Long
+  -puntajeObtenido: Double
+  -puntajeRequerido: Double
+  -fechaCalculo: Date
+  +generarResporteComparativo(): void 
+  +generarReporteMerito(): void 
+}
+
+class BloqueCuestionario {
+  -id: Long
+  -numero: Integer 
+  -completado: Boolean
+}
+
+class RespuestaCandidato {
+  -id: Long
+  -fechaRespuesta: Date
+}
+
+class Candidato {}
+class Puesto {}
+class Pregunta {}
+class Opcion {}
+
+Cuestionario "1" *-- "1..*" BloqueCuestionario : divide en >
+
+Cuestionario "*" --> "1" Candidato : rendido por >
+Cuestionario "*" --> "1" Puesto : asociado a >
+
+BloqueCuestionario "1" *-- "1..*" RespuestaCandidato : contiene >
+
+RespuestaCandidato "*" --> "1" Pregunta : evalúa >
+RespuestaCandidato "*" --> "1" Opcion : selecciona >
+
+Cuestionario "1" *-- "1" Resultado : genera >
+Cuestionario ..> EstadoCuestionario 
 
 @enduml
