@@ -1,4 +1,4 @@
-@startum  Diagrama
+@startuml  
 class Clase1 {
   +metodo1()
   -atributo1
@@ -8,5 +8,50 @@ class Clase2 {
   +metodo2()
   -atributo2
 }
+title TP
+
+caption Modulo Gestion de Competencias y Gestion de Preguntas
+class Pregunta {
+    -id: Long
+    -enunciado: String
+    -tipo: TipoPregunta
+    +crearConGenAI(): void
+}
+
+enum TipoPregunta{
+    OPCION_MULTIPLE
+    VERDADERO_FALSO
+    ESCALA
+}
+
+class OpcionRespuesta{
+    -id: Long
+    -texto: String
+    -puntaje: Double
+    -orden: Integer
+}
+
+abstract class Competencia {
+    -id: Long
+    -nombre: String 
+    -descripcion: String
+    +getTipo() : String
+}
+
+class CompetenciaActitudinal {
+    -comportamiento: String
+}
+class Factor{
+    -id: Long 
+    -nombre: String
+    -descripcion: String
+}
+class CompetenciaTecnica{
+    -tecnologia: String
+}
+
+Competencia <|-- CompetenciaActitudinal
+Competencia <|-- CompetenciaTecnica
+
 
 @enduml
