@@ -80,20 +80,30 @@ class Empresa{
 
 Puesto "1..*" --> "1" Empresa : en >
 
-class Candidato{
-  -nroCandidato: Long
+abstract class Usuario {
   -apellido: String
   -nombre: String
-  -nroDocumento: String
+  -email: String
+}
+
+class Candidato {
+  -nroCandidato: Long
   -tipoDocumento: String
+  -nroDocumento: String
   -fechaNacimiento: Date
   -genero: Char
   -nacionalidad: String
-  -email: String
   -escolaridad: String
-  -eliminado: Boolean
   -clave: String
+  -eliminado: Boolean
 }
+
+class Consultor {
+  -nombreUsuario: String
+}
+
+Usuario <|-- Candidato
+Usuario <|-- Consultor
 
 Resultado "1" --> "*" Candidato : de >
 
@@ -125,5 +135,89 @@ RespuestaCandidato "*" --> "1" Pregunta : evalúa >
 
 Cuestionario "1" *-- "1" Resultado : genera >
 Cuestionario ..> EstadoCuestionario 
+
+package "Gestores de Logica" {
+    class ServiciodeAutenticacion <<gestor>> {
+        +autenticarUsuario (usuario: String, clave: String)
+        +validarCandidato(tipo:String, nroDni:String, clave:Integer)
+    }
+    class GestorCandidato <<gestor>>{
+        +importarCandidatos()
+        +exportarResultados()
+    }
+    class GestorPuesto <<gestor>> {
+        +darAltaPuesto()
+        +darBajaPuesto()
+        +modificarPuesto()
+    }
+    class GestorFactor <<gestor>> {
+        +darAltaFactor()
+        +darBajaFactor()
+        +modificarFactor()
+    }
+    class GestorPregunta <<gestor>> {
+        +darAltaPregunta()
+        +darBajaPregunta()
+        +modificarPregunta()
+        +generarPreguntaIA(competenciaId: Long, factorId: Long)
+        +darAltaOpcion()
+        +darBajaOpcion()
+        +modificarOpcion()
+    }
+    class GestorCompetencia <<gestor>> {
+        +darAltaCompetencia()
+        +darBajaCompetencia()
+        +modificarCompetencia()
+    }
+    class GestorEvaluaciones <<gestor>> {
+        +evaluarCandidato()
+        +completarCuestionario()
+        +finalizarCuestionariosPendientes()
+        +generarReporteComparativo()
+        +generarReporteMerito()
+    }
+}
+package "Capa de Dominio (Entidades)" {
+    class Usuario <<entity>> { /' Revisar si no vamos a necesitar una herencia, Usuario <-- (consultor candidato)'/
+        
+    }
+    class Candidato <<entity>> {
+        
+    }
+    class Puesto <<entity>> {
+        
+    }
+    class Competencia <<entity>> {
+        
+    }
+    class Factor <<entity>> {
+        
+    }
+    class Pregunta <<entity>> {
+        
+    }
+    class OpcionRespuesta <<entity>> {
+        
+    }
+    class Cuestionario <<entity>> {
+        
+    }
+    class RespuestaCandidato <<entity>> {
+        
+    }
+}
+
+ServiciodeAutenticacion ..> Candidato
+ServiciodeAutenticacion ..> Usuario
+GestorCandidato ..> Candidato
+GestorPuesto ..> Puesto
+GestorPregunta ..> Pregunta
+GestorPregunta ..> OpcionRespuesta
+GestorPregunta ..> Factor
+GestorFactor ..> Factor
+GestorCompetencia ..> Competencia
+GestorEvaluaciones ..> Cuestionario
+GestorEvaluaciones ..> Candidato
+GestorEvaluaciones ..> Puesto
 
 @enduml
