@@ -1,0 +1,82 @@
+@startuml Gestores de Logica
+package "Gestores de Logica" {
+    class ServiciodeAutenticacion <<gestor>> {
+        +autenticarUsuario ()
+        +validarCandidato(tipo:String, nroDni:String, clave:Integer)
+    }
+    class GestorCandidato <<gestor>>{
+        +importarCandidatos()
+        +exportarResultados()
+    }
+    class GestorPuesto <<gestor>> {
+        +darAltaPuesto()
+        +darBajaPuesto()
+        +modificarPuesto()
+    }
+    class GestorFactor <<gestor>> {
+        +darAltaFactor()
+        +darBajaFactor()
+        +modificarFactor()
+    }
+    class GestorPregunta <<gestor>> {
+        +darAltaPregunta()
+        +darBajaPregunta()
+        +modificarPregunta()
+        +generarPreguntaIA()
+        +darAltaOpcion()
+        +darBajaOpcion()
+        +modificarOpcion()
+    }
+    class GestorCompetencia <<gestor>> {
+        +darAltaCompetencia()
+        +darBajaCompetencia()
+        +modificarCompetencia()
+    }
+    class GestorEvaluaciones <<gestor>> {
+        +evaluarCandidato()
+        +completarCuestionario()
+        +finalizarCuestionariosPendientes()
+    }
+}
+package "Capa de Dominio (Entidades)" {
+    class Usuario <<entity>> { /' Revisar si no vamos a necesitar una herencia, Usuario <-- (consultor candidato)'/
+        
+    }
+    class Candidato <<entity>> {
+        
+    }
+    class Puesto <<entity>> {
+        
+    }
+    class Competencia <<entity>> {
+        
+    }
+    class Factor <<entity>> {
+        
+    }
+    class Pregunta <<entity>> {
+        
+    }
+    class OpcionRespuesta <<entity>> {
+        
+    }
+    class Cuestionario <<entity>> {
+        
+    }
+    class RespuestaCandidato <<entity>> {
+        
+    }
+}
+
+ServiciodeAutenticacion ..> Candidato
+ServiciodeAutenticacion ..> Usuario
+GestorCandidato ..> Candidato
+GestorPuesto ..> Puesto
+GestorPregunta ..> Pregunta
+GestorPregunta ..> OpcionRespuesta
+GestorPregunta ..> Factor
+GestorFactor ..> Factor
+GestorCompetencia ..> Competencia
+GestorEvaluaciones ..> Cuestionario
+GestorEvaluaciones ..> Candidato
+GestorEvaluaciones ..> Puesto

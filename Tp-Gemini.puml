@@ -1,0 +1,159 @@
+@startuml
+' Configuraciones visuales para que se vea limpio y profesional
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 60
+
+title Diagrama de Clases - Diseño de Sistemas 2026 (Etapa 2)
+
+' ==========================================
+' MÓDULO 1: USUARIOS Y CANDIDATOS
+' ==========================================
+package "Usuarios y Candidatos" #ECEFF1 {
+    class Candidato {
+        - nroCandidato: Integer
+        - tipoDocumento: String
+        - nroDocumento: String
+        - nombre: String
+        - apellido: String
+        - email: String
+        - fechaNacimiento: Date
+        - escolaridad: String
+        - eliminado: Boolean
+    }
+    class Consultor {
+        - nombreUsuario: String
+        - contrasenia: String
+    }
+}
+
+' ==========================================
+' MÓDULO 2: PUESTOS Y COMPETENCIAS
+' ==========================================
+package "Puestos y Competencias" #E8F5E9 {
+    class Puesto {
+        - codigo: String
+        - nombre: String
+        - empresa: String
+        - descripcion: String
+    }
+
+    class CompetenciaRequerida {
+        - puntajeMinimo: Double
+        - ponderacion: Double
+    }
+
+    abstract class Competencia <<abstract>> {
+        - codigo: String
+        - nombre: String
+        - descripcion: String
+        + getTipo(): String
+    }
+
+    class CompetenciaTecnica extends Competencia {
+        - tecnologia: String
+    }
+
+    class CompetenciaActitudinal extends Competencia {
+        - comportamiento: String
+    }
+
+    class Factor {
+        - codigo: String
+        - nombre: String
+        - descripcion: String
+        - nroOrden: Integer
+    }
+}
+
+' ==========================================
+' MÓDULO 3: PREGUNTAS Y OPCIONES
+' ==========================================
+package "Preguntas y Opciones" #FFF3E0 {
+    class Pregunta {
+        - nombre: String
+        - enunciado: String
+        - descripcion: String
+        + generarConIA(): void
+    }
+
+    class OpcionRespuesta {
+        - ordenVisualizacion: Integer
+        - descripcion: String
+        - ponderacion: Double
+    }
+}
+
+' ==========================================
+' MÓDULO 4: EVALUACIONES Y CUESTIONARIOS
+' ==========================================
+package "Evaluaciones y Cuestionarios" #E3F2FD {
+    class Cuestionario {
+        - claveIngreso: String
+        - fechaInicio: Date
+        - ultimoIngreso: Date
+        - fechaFin: Date
+        - cantidadAccesos: Integer
+        - estado: EstadoCuestionario
+        + calcularPuntaje(): Double
+    }
+
+    enum EstadoCuestionario {
+        ACTIVO
+        EN_PROCESO
+        COMPLETO
+        INCOMPLETO
+        SIN_CONTESTAR
+    }
+
+    class BloqueCuestionario {
+        - numeroBloque: Integer
+        - completado: Boolean
+    }
+
+    class RespuestaCandidato {
+        - fechaRespuesta: Date
+    }
+    
+    class Resultado {
+        - puntajeObtenido: Double
+        - puntajeRequerido: Double
+        - fechaCalculo: Date
+        + generarReporteComparativo(): void
+        + generarReporteMerito(): void
+    }
+}
+
+' ==========================================
+' RELACIONES Y MULTIPLICIDADES
+' ==========================================
+
+' Relaciones de Puestos y Competencias
+Puesto "1" -right- "1..*" CompetenciaRequerida : define >
+CompetenciaRequerida "1..*" -right- "1" Competencia : refiere a >
+Competencia "1" *-down- "2..*" Factor : se compone de >
+
+' Relaciones de Preguntas
+Factor "1" *-down- "0..*" Pregunta : contiene >
+Pregunta "1" *-right- "2..*" OpcionRespuesta : tiene >
+
+' Relaciones de Evaluaciones (Cuestionarios)
+Candidato "1" -down- "0..*" Cuestionario : rinde >
+Puesto "1" -down- "0..*" Cuestionario : evaluado en >
+
+Cuestionario -left-> EstadoCuestionario
+Cuestionario "1" *-down- "1..*" BloqueCuestionario : divide en >
+Cuestionario "1" -right- "1" Resultado : genera >
+
+BloqueCuestionario "1" *-down- "1..*" RespuestaCandidato : registra >
+
+' Relación para guardar qué respondió el candidato
+RespuestaCandidato "*" -left- "1" Pregunta : asocia >
+RespuestaCandidato "*" -down- "0..1" OpcionRespuesta : selecciona >
+
+' Interacciones del consultor (Opcionales, pero dan contexto)
+Consultor -down-> Puesto : gestiona >
+Consultor -down-> Candidato : importa >
+
+@enduml
