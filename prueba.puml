@@ -10,39 +10,41 @@ title Diagrama de Clases Optimizado - Diseño de Sistemas 2026 (Etapa 2)
 ' 1. CAPA SUPERIOR: GESTORES DE LÓGICA (CONTROLADORES)
 ' =========================================================================
 package "Gestores de Logica" #FFF9C4 {
-    class ServiciodeAutenticacion <<gestor>> {
+    class ServiciodeAutenticacion <<gestor>>{
         + validarCandidato(tipo: String, nroDni: String, clave: Integer)
-        +autenticarUsuario (usuario: String, clave: String)
+        + autenticarConsultor (usuario: String, clave: String)
     }
     class GestorCandidato <<gestor>> {
         + importarCandidatos()
         + exportarResultados()
     }
-    class GestorPuesto <<gestor>> {
-        + darAltaPuesto()
-        + darBajaPuesto()
-        + modificarPuesto()
+    class GestorPuesto <<gestor>> {  
+        + darAlta()
+        + darBaja()
+        + modificar()  
     }
-    class GestorCompetencia <<gestor>> {
-        + darAltaCompetencia()
-        + darBajaCompetencia()
-        + modificarCompetencia()
+    class GestorCompetencia <<gestor>> {   
+        + darAlta()
+        + darBaja()
+        + modificar()   
     }
     class GestorFactor <<gestor>> {
-        + darAltaFactor()
-        + darBajaFactor()
-        + modificarFactor()
+        + darAlta()
+        + darBaja()
+        + modificar()   
     }
     class GestorPregunta <<gestor>> {
-        + darAltaPregunta()
-        + darBajaPregunta()
-        + modificarPregunta()
+        + darAlta()
+        + darBaja()
+        + modificar()
         + generarPreguntaIA()
-        + darAltaOpcion()
-        + darBajaOpcion()
-        + modificarOpcion()
         +generarPreguntaIA(competenciaId: Long, factorId: Long) 
     }
+    class GestorOpciones <<gestor>> {
+        + darAlta()
+        + darBaja()
+        + modificar()   
+    }  
     class GestorEvaluaciones <<gestor>> {
         + evaluarCandidato()
         + completarCuestionario()
@@ -51,7 +53,24 @@ package "Gestores de Logica" #FFF9C4 {
     }
 }
 
+interface Autenticacion <<interface>> {
+    + validarCandidato(tipo: String, nroDni: String, clave: Integer)
+    + autenticarConsultor(usuario: String, clave: String): boolean
+}
 
+ServiciodeAutenticacion ..|> Autenticacion
+
+GestorPuesto ..|> ABM
+GestorCompetencia ..|> ABM
+GestorFactor ..|> ABM
+GestorPregunta ..|> ABM
+GestorOpciones ..|> ABM
+
+interface ABM <<interface>> {
+    +darAlta()
+    +darBaja()
+    +modificar()
+}
 
 ' =========================================================================
 ' 2. CAPA DE NEGOCIO PRINCIPAL: PUESTOS Y COMPETENCIAS
@@ -183,14 +202,16 @@ package "Evaluacion de Candidatos" #FAFAFA {
         - fechaCalculo: Date
         
     }
-    enum EstadoCuestionario {
-        PENDIENTE
-        EN_CURSO
+    enum EstadoCuestionario <<enumeration>> {
+        ACTIVO
+        SIN_CONTESTAR
+        EN_PROCESO
+        INCOMPLETO
         COMPLETO
     }
 
     ' Relaciones internas del paquete
-    Cuestionario -right-> EstadoCuestionario
+    Cuestionario --> EstadoCuestionario
     Cuestionario "1" *-- "1..*" BloqueCuestionario : divide en >
     Cuestionario "1" *-- "1" Resultado : genera >
     BloqueCuestionario "1" *-- "1..*" RespuestaCandidato : contiene >
@@ -206,7 +227,7 @@ RespuestaCandidato "*" -up-> "1" Pregunta : evalúa >
 ' =========================================================================
 ' DEPENDENCIAS DE USO: DE GESTORES A ENTIDADES (Líneas limpias hacia abajo)
 ' =========================================================================
-ServiciodeAutenticacion ..> Candidato
+ServiciodeAutenticacion ..> Usuario
 GestorCandidato ..> Candidato
 GestorPuesto ..> Puesto
 GestorCompetencia ..> Competencia
@@ -246,5 +267,7 @@ class ReporteOrdenMerito implements GeneradorReporte {
 GestorEvaluaciones --> GeneradorReporte : usa
 
 GestorPregunta --> IServicioIA : usa
+
+
 
 @enduml
