@@ -327,10 +327,10 @@ package "Evaluacion de Candidatos" #FAFAFA {
     }
 
     Cuestionario --> EstadoCuestionario
-    Cuestionario "1" *-- "1..*" BloqueCuestionario : divide en >
+    Cuestionario "1" -- "1..*" BloqueCuestionario : divide en >
     Cuestionario "1" -- "0..*" Resultado : genera >
     Resultado "1..*" --> "1" Competencia : corresponde a >
-    BloqueCuestionario "1" *-- "1..*" RespuestaCandidato : contiene >
+    BloqueCuestionario "1" -- "1..*" RespuestaCandidato : tiene >
     RespuestaCandidato "*" --> "1" OpcionRespuesta : selecciona >
     Resultado "*" --> "1" Candidato : de >
     BloqueCuestionario "1" -- "1..*" Pregunta : contiene >
