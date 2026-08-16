@@ -22,13 +22,13 @@ package "Gestores de Logica" #FFF9C4 {
         + buscar(codigo: String, nombre: String, empresa: String): List<Puesto>
         + darAlta(dto: PuestoDTO): Puesto
         + modificar(id: Long, dto: PuestoDTO): Puesto
-        + darBaja(id: Long): boolean
+        + darBaja(id: Long): void
     }
     class GestorCompetencia <<gestor>> {
         + buscar(nombre: String): List<Competencia>
         + darAlta(dto: CompetenciaDTO): Competencia
         + modificar(id: Long, dto: CompetenciaDTO): Competencia
-        + darBaja(id: Long): boolean
+        + darBaja(id: Long): void
     }
     class GestorFactor <<gestor>> {
         + buscar(competenciaId: Long, nombreFactor: String): List<Factor>
@@ -40,14 +40,14 @@ package "Gestores de Logica" #FFF9C4 {
         + buscar(competenciaId: Long, factorId: Long, nombrePregunta: String): List<Pregunta>
         + darAlta(dto: PreguntaDTO): Pregunta
         + modificar(id: Long, dto: PreguntaDTO): Pregunta
-        + darBaja(id: Long): boolean
+        + darBaja(id: Long): void
         + generarPreguntaConIA(competenciaId: Long, factorId: Long): Pregunta
     }
     class GestorOpciones <<gestor>> {
         + buscar(nombre: String): List<OpcionRespuesta>
         + darAlta(dto: OpcionRespuestaDTO): OpcionRespuesta
         + modificar(id: Long, dto: OpcionRespuestaDTO): OpcionRespuesta
-        + darBaja(id: Long): boolean
+        + darBaja(id: Long): void
     }
     class GestorEvaluaciones <<gestor>> {
         + buscarCandidatos(apellido: String, nombre: String, nroCandidato: Long): List<Candidato>
@@ -122,34 +122,10 @@ package "Transferencia de Datos (DTO)" #F3E5F5 {
     class CandidatoDTO <<DTO>> {
         + nombre: String
         + apellido: String
-        + tipoDni: String
-        + dni: String
+        + nroCandidato: Long
     }
-
-    class CuestionarioDTO <<DTO>> {
-        + estado: String
-        + fechaInicio: Date
-        + fechaFin: Date
-        + ultimoIngreso: Date
-        + cantidadAccesos: Integer
-    }
-   
-    class OrdenMeritoDTO <<DTO>> {
-        + candidato: CandidatoDTO
-        + cuestionario: CuestionarioDTO
-        + puntajeObtenido: Double
-        + cumplePonderacionesMinimas: Boolean
-    }
-
 }
 
-OrdenMeritoDTO *-- "1" CandidatoDTO : contiene
-OrdenMeritoDTO *-- "1" CuestionarioDTO : contiene
-
-
-GestorEvaluaciones ..> OrdenMeritoDTO : recibe
-GestorEvaluaciones ..> CandidatoDTO : recibe
-GestorEvaluaciones ..> CuestionarioDTO : recibe
 GestorPuesto ..> PuestoDTO : recibe
 GestorCompetencia ..> CompetenciaDTO : recibe
 GestorFactor ..> FactorDTO : recibe
@@ -248,7 +224,6 @@ package "Autenticacion de Usuarios" #FFEBEE {
         - nacionalidad: String
         - escolaridad: String
         - eliminado: Boolean
-        - contrasenia: String
     }
 
     class Consultor {

@@ -160,20 +160,7 @@ package "Autenticacion de Usuarios" #FFEBEE{
 ' 4. CAPA DE PROCESO Y CANDIDATOS: EVALUACIONES
 ' =========================================================================
 package "Evaluacion de Candidatos" #FAFAFA {
-    class Candidato {
-        - nroCandidato: Long
-        - apellido: String
-        - nombre: String
-        - nroDocumento: String
-        - tipoDocumento: String
-        - fechaNacimiento: Date
-        - genero: Char
-        - nacionalidad: String
-        - email: String
-        - escolaridad: String
-        - eliminado: Boolean
-        - clave: String
-    }
+    
     class Cuestionario {
         - id: Long
         - fechaCreacion: Date
