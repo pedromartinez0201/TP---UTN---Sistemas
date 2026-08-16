@@ -126,6 +126,10 @@ package "Transferencia de Datos (DTO)" #F3E5F5 {
         + dni: String
     }
 
+    class ClaveCandidatoDTO <<DTO>> {
+        + claveIngreso: String
+    } 
+
     class CuestionarioDTO <<DTO>> {
         + estado: EstadoCuestionario
         + fechaInicio: Date
@@ -141,12 +145,22 @@ package "Transferencia de Datos (DTO)" #F3E5F5 {
         + cumplePonderacionesMinimas: Boolean
     }
 
+    class EvaluarCandidatoDTO <<DTO>> {
+        + candidatoEvaluado: CandidatoDTO
+        + nombrePuesto: String
+        + nombreEmpresa: String
+        + claveIngreso: ClaveCandidatoDTO
+    }
+
 }
 
 OrdenMeritoDTO *-- "1" CandidatoDTO : contiene
 OrdenMeritoDTO *-- "1" CuestionarioDTO : contiene
+EvaluarCandidatoDTO *-- "1" CandidatoDTO : contiene
+EvaluarCandidatoDTO *-- "1" ClaveCandidatoDTO : contiene
 
-
+GestorEvaluaciones ..> ClaveCandidatoDTO : recibe
+GestorEvaluaciones ..> EvaluarCandidatoDTO : recibe
 GestorEvaluaciones ..> OrdenMeritoDTO : recibe
 GestorEvaluaciones ..> CandidatoDTO : recibe
 GestorEvaluaciones ..> CuestionarioDTO : recibe
