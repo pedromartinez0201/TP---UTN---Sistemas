@@ -20,38 +20,38 @@ package "Gestores de Logica" #FFF9C4 {
     }
     class GestorPuesto <<gestor>> {
         + buscar(codigo: String, nombre: String, empresa: String): List<Puesto>
-        + darAlta(dto: PuestoDTO): Puesto
-        + modificar(id: Long, dto: PuestoDTO): Puesto
+        + darAlta(dto: PuestoDTO): PuestoDTO
+        + modificar(id: Long, dto: PuestoDTO): PuestoDTO
         + darBaja(id: Long): boolean
     }
     class GestorCompetencia <<gestor>> {
         + buscar(nombre: String): List<Competencia>
-        + darAlta(dto: CompetenciaDTO): Competencia
-        + modificar(id: Long, dto: CompetenciaDTO): Competencia
+        + darAlta(dto: CompetenciaDTO): CompetenciaDTO
+        + modificar(id: Long, dto: CompetenciaDTO): CompetenciaDTO
         + darBaja(id: Long): boolean
     }
     class GestorFactor <<gestor>> {
         + buscar(competenciaId: Long, nombreFactor: String): List<Factor>
-        + darAlta(dto: FactorDTO): Factor
-        + modificar(id: Long, dto: FactorDTO): Factor
+        + darAlta(dto: FactorDTO): FactorDTO
+        + modificar(id: Long, dto: FactorDTO): FactorDTO
         + darBaja(id: Long): void
     }
     class GestorPregunta <<gestor>> {
         + buscar(competenciaId: Long, factorId: Long, nombrePregunta: String): List<Pregunta>
-        + darAlta(dto: PreguntaDTO): Pregunta
-        + modificar(id: Long, dto: PreguntaDTO): Pregunta
+        + darAlta(dto: PreguntaDTO): PreguntaDTO
+        + modificar(id: Long, dto: PreguntaDTO): PreguntaDTO
         + darBaja(id: Long): boolean
         + generarPreguntaConIA(competenciaId: Long, factorId: Long): Pregunta
     }
     class GestorOpciones <<gestor>> {
         + buscar(nombre: String): List<OpcionRespuesta>
-        + darAlta(dto: OpcionRespuestaDTO): OpcionRespuesta
-        + modificar(id: Long, dto: OpcionRespuestaDTO): OpcionRespuesta
+        + darAlta(dto: OpcionRespuestaDTO): OpcionRespuestaDTO
+        + modificar(id: Long, dto: OpcionRespuestaDTO): OpcionRespuestaDTO
         + darBaja(id: Long): boolean
     }
     class GestorEvaluaciones <<gestor>> {
-        + buscarCandidatos(apellido: String, nombre: String, nroCandidato: Long): List<Candidato>
-        + evaluarCandidato(candidatoIds: List<Long>, puestoId: Long): List<Cuestionario>
+        + buscarCandidatos(dto: CandidatoDTO): List<CandidatoDTO>
+        + evaluarCandidato(dto: evaluarCandidatoDTO): List<evaluarCandidatoDTO>
         + completarCuestionario(cuestionarioId: Long, bloqueId: Long, respuestas: List<RespuestaCandidato>): void
         + consultarRespuestas(cuestionarioId: Long): List<RespuestaCandidato>
         + finalizarCuestionariosPendientes(): void
