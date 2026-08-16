@@ -131,7 +131,7 @@ package "Transferencia de Datos (DTO)" #F3E5F5 {
     } 
 
     class CuestionarioDTO <<DTO>> {
-        + estado: EstadoCuestionario
+        + estado: String
         + fechaInicio: Date
         + fechaFin: Date
         + ultimoIngreso: Date
