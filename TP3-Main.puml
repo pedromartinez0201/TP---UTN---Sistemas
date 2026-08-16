@@ -126,8 +126,9 @@ package "Transferencia de Datos (DTO)" #F3E5F5 {
         + dni: String
     }
 
+' La clave candidato la saca de cuestionario 
     class ClaveCandidatoDTO <<DTO>> {
-        + claveIngreso: String
+        - claveIngreso: String
     } 
 
     class CuestionarioDTO <<DTO>> {
@@ -151,14 +152,26 @@ package "Transferencia de Datos (DTO)" #F3E5F5 {
         + nombreEmpresa: String
         + claveIngreso: ClaveCandidatoDTO
     }
-
+    class importarCandidatoDTO <<DTO>> {
+        - infocandidatoDTO : CandidatoDTO
+        - fechanacimiento : Date
+        -genero : Char
+        -nacionalidad : String
+        -escolaridad : String
+        -eliminado : Boolean
+    }
 }
 
+
+
+
+importarCandidatoDTO *--"1" CandidatoDTO : contiene
 OrdenMeritoDTO *-- "1" CandidatoDTO : contiene
 OrdenMeritoDTO *-- "1" CuestionarioDTO : contiene
 EvaluarCandidatoDTO *-- "1" CandidatoDTO : contiene
 EvaluarCandidatoDTO *-- "1" ClaveCandidatoDTO : contiene
 
+GestorCandidato ..> importarCandidatoDTO : recibe
 GestorEvaluaciones ..> ClaveCandidatoDTO : recibe
 GestorEvaluaciones ..> EvaluarCandidatoDTO : recibe
 GestorEvaluaciones ..> OrdenMeritoDTO : recibe
@@ -251,6 +264,7 @@ package "Autenticacion de Usuarios" #FFEBEE {
         - apellido: String
         - nombre: String
         - email: String
+        - contrasenia: String
     }
 
     class Candidato {
@@ -262,7 +276,7 @@ package "Autenticacion de Usuarios" #FFEBEE {
         - nacionalidad: String
         - escolaridad: String
         - eliminado: Boolean
-        - contrasenia: String
+        
     }
 
     class Consultor {
@@ -319,6 +333,7 @@ package "Evaluacion de Candidatos" #FAFAFA {
     BloqueCuestionario "1" *-- "1..*" RespuestaCandidato : contiene >
     RespuestaCandidato "*" --> "1" OpcionRespuesta : selecciona >
     Resultado "*" --> "1" Candidato : de >
+    BloqueCuestionario 1 -- "1..*" Pregunta : contiene >
 }
 
 Cuestionario "0..*" -up-> "1" Candidato : rinde >
@@ -354,18 +369,28 @@ package "Acceso a Datos (DAO)" #EDE7F6 {
         + actualizar(entidad: T): T
         + eliminar(id: ID): void
     }
-
+    class CandidatosDAOSQL <<DAO de Candidato>>
     class PuestoDAOSQL <<DAO de Puesto>>
     class CompetenciaDAOSQL <<DAO de Competencia>>
     class FactorDAOSQL <<DAO de Factor>>
     class PreguntaDAOSQL <<DAO de Pregunta>>
     class OpcionRespuestaDAOSQL <<DAO de OpcionRespuesta>>
 
+    CandidatosDAOSQL --|> DAO : <Candidato, Long>
     PuestoDAOSQL ..|> DAO : <Puesto, Long>
     CompetenciaDAOSQL ..|> DAO : <Competencia, Long>
     FactorDAOSQL ..|> DAO : <Factor, Long>
     PreguntaDAOSQL ..|> DAO : <Pregunta, Long>
     OpcionRespuestaDAOSQL ..|> DAO : <OpcionRespuesta, Long>
+
+    'Depedencias del DAO con sus Dominios
+    DAO ..> Candidato : usa
+    DAO ..> Puesto : usa
+    DAO ..> Competencia : usa
+    DAO ..> Factor : usa
+    DAO ..> Pregunta : usa
+    DAO ..> OpcionRespuesta : usa
+
 }
 
 GestorPuesto ..> DAO : usa
@@ -401,6 +426,7 @@ class ReporteOrdenMerito implements GeneradorReporte {
     + generarReporte(): void
     + imprimirReporte(): void
 }
+
 
 GestorEvaluaciones ..> GeneradorReporte : usa
 GestorPregunta ..> IServicioIA : usa
