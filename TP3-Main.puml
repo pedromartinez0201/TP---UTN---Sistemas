@@ -1,0 +1,394 @@
+@startuml Diagrama
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam nodesep 50
+skinparam ranksep 40
+
+title Diagrama de Clases Corregido - Diseño de Sistemas 2026 (Entrega 3)
+
+' =========================================================================
+' 1. CAPA SUPERIOR: GESTORES DE LOGICA (CONTROLADORES)
+' =========================================================================
+package "Gestores de Logica" #FFF9C4 {
+    class ServiciodeAutenticacion <<gestor>> {
+        + validarCandidato(tipo: String, nroDocumento: String, clave: String): Candidato
+        + autenticarConsultor(usuario: String, clave: String): boolean
+    }
+    class GestorCandidato <<gestor>> {
+        + importarCandidatos(archivoCSV: String): EstadisticaImportacion
+        + exportarResultados(nombre: String, empresa: String, fechaDesde: Date, fechaHasta: Date): FileCSV
+    }
+    class GestorPuesto <<gestor>> {
+        + buscar(codigo: String, nombre: String, empresa: String): List<Puesto>
+        + darAlta(dto: PuestoDTO): Puesto
+        + modificar(id: Long, dto: PuestoDTO): Puesto
+        + darBaja(id: Long): booleant
+    }
+    class GestorCompetencia <<gestor>> {
+        + buscar(nombre: String): List<Competencia>
+        + darAlta(dto: CompetenciaDTO): Competencia
+        + modificar(id: Long, dto: CompetenciaDTO): Competencia
+        + darBaja(id: Long): boolean
+    }
+    class GestorFactor <<gestor>> {
+        + buscar(competenciaId: Long, nombreFactor: String): List<Factor>
+        + darAlta(dto: FactorDTO): Factor
+        + modificar(id: Long, dto: FactorDTO): Factor
+        + darBaja(id: Long): void
+    }
+    class GestorPregunta <<gestor>> {
+        + buscar(competenciaId: Long, factorId: Long, nombrePregunta: String): List<Pregunta>
+        + darAlta(dto: PreguntaDTO): Pregunta
+        + modificar(id: Long, dto: PreguntaDTO): Pregunta
+        + darBaja(id: Long): boolean
+        + generarPreguntaConIA(competenciaId: Long, factorId: Long): Pregunta
+    }
+    class GestorOpciones <<gestor>> {
+        + buscar(nombre: String): List<OpcionRespuesta>
+        + darAlta(dto: OpcionRespuestaDTO): OpcionRespuesta
+        + modificar(id: Long, dto: OpcionRespuestaDTO): OpcionRespuesta
+        + darBaja(id: Long): boolean
+    }
+    class GestorEvaluaciones <<gestor>> {
+        + buscarCandidatos(apellido: String, nombre: String, nroCandidato: Long): List<Candidato>
+        + evaluarCandidato(candidatoIds: List<Long>, puestoId: Long): List<Cuestionario>
+        + completarCuestionario(cuestionarioId: Long, bloqueId: Long, respuestas: List<RespuestaCandidato>): void
+        + consultarRespuestas(cuestionarioId: Long): List<RespuestaCandidato>
+        + finalizarCuestionariosPendientes(): void
+        + emitirInformeComparativo(candidatoId: Long, puestoId: Long): void
+        + emitirOrdenMerito(puestoId: Long, cuestionarioIds: List<Long>): void
+    }
+}
+
+interface Autenticacion <<interface>> {
+    + validarCandidato(tipo: String, nroDocumento: String, clave: String): Candidato
+    + autenticarConsultor(usuario: String, clave: String): boolean
+}
+
+ServiciodeAutenticacion ..|> Autenticacion
+
+GestorPuesto ..|> ABM
+GestorCompetencia ..|> ABM
+GestorFactor ..|> ABM
+GestorPregunta ..|> ABM
+GestorOpciones ..|> ABM
+
+interface ABM <<interface>> {
+    + darAlta()
+    + darBaja()
+    + modificar()
+}
+
+' =========================================================================
+' 2. OBJETOS DE TRANSFERENCIA (DTO)
+' =========================================================================
+package "Transferencia de Datos (DTO)" #F3E5F5 {
+    class PuestoDTO <<DTO>> {
+        + id: Long
+        + codigo: String
+        + nombre: String
+        + descripcion: String
+        + empresaNombre: String
+    }
+    class CompetenciaDTO <<DTO>> {
+        + id: Long
+        + nombre: String
+        + descripcion: String
+    }
+    class FactorDTO <<DTO>> {
+        + id: Long
+        + competenciaId: Long
+        + nombre: String
+        + descripcion: String
+        + nroOrden: Integer
+    }
+    class PreguntaDTO <<DTO>> {
+        + id: Long
+        + factorId: Long
+        + nombre: String
+        + enunciado: String
+        + descripcion: String
+        + tipo: TipoPregunta
+        + opciones: List<OpcionRespuestaDTO>
+    }
+    class OpcionRespuestaDTO <<DTO>> {
+        + id: Long
+        + preguntaId: Long
+        + texto: String
+        + puntaje: Double
+        + orden: Integer
+    }
+
+    class CandidatoDTO <<DTO>> {
+        + nombre: String
+        + apellido: String
+        + tipoDni: String
+        + dni: String
+    }
+
+    class CuestionarioDTO <<DTO>> {
+        + estado: String
+        + fechaInicio: Date
+        + fechaFin: Date
+        + ultimoIngreso: Date
+        + cantidadAccesos: Integer
+    }
+   
+    class OrdenMeritoDTO <<DTO>> {
+        + candidato: CandidatoDTO
+        + cuestionario: CuestionarioDTO
+        + puntajeObtenido: Double
+        + cumplePonderacionesMinimas: Boolean
+    }
+
+}
+
+OrdenMeritoDTO *-- "1" CandidatoDTO : contiene
+OrdenMeritoDTO *-- "1" CuestionarioDTO : contiene
+
+
+GestorEvaluaciones ..> OrdenMeritoDTO : 
+GestorEvaluaciones ..> CandidatoDTO : 
+GestorEvaluaciones ..> CuestionarioDTO : 
+GestorPuesto ..> PuestoDTO : recibe
+GestorCompetencia ..> CompetenciaDTO : recibe
+GestorFactor ..> FactorDTO : recibe
+GestorPregunta ..> PreguntaDTO : recibe
+GestorOpciones ..> OpcionRespuestaDTO : recibe
+
+' =========================================================================
+' 3. CAPA DE NEGOCIO PRINCIPAL: PUESTOS Y COMPETENCIAS
+' =========================================================================
+package "Gestion de Competencias" #E8F5E9 {
+    class Empresa {
+        - nombre: String
+    }
+    class Puesto {
+        - id: Long
+        - codigo: String
+        - nombre: String
+        - descripcion: String
+    }
+    class CompetenciaRequerida {
+        - puntajeMinimo: Double
+    }
+    abstract class Competencia <<abstract>> {
+        - id: Long
+        - nombre: String
+        - descripcion: String
+        + getTipo(): String
+    }
+    class CompetenciaActitudinal {
+        - comportamiento: String
+    }
+    class CompetenciaTecnica {
+        - tecnologia: String
+    }
+    class Factor {
+        - id: Long
+        - nombre: String
+        - descripcion: String
+        - nroOrden: Integer
+    }
+
+    Puesto "1..*" -up-> "1" Empresa : en >
+    Puesto "1" *-- "1..*" CompetenciaRequerida : define >
+    CompetenciaRequerida "1..*" -right-> "1" Competencia : refiere a >
+    Competencia <|-- CompetenciaActitudinal
+    Competencia <|-- CompetenciaTecnica
+    Competencia "1" *-- "2..*" Factor : se compone de >
+}
+
+' =========================================================================
+' 4. CAPA DE CONTENIDO: PREGUNTAS Y OPCIONES
+' =========================================================================
+package "Gestion de Preguntas" #E3F2FD {
+    class Pregunta {
+        - id: Long
+        - nombre: String
+        - enunciado: String
+        - descripcion: String
+        - tipo: TipoPregunta
+        + crearConGenAI(): void
+    }
+    class OpcionRespuesta {
+        - id: Long
+        - texto: String
+        - puntaje: Double
+        - orden: Integer
+    }
+    enum TipoPregunta {
+        OPCION_MULTIPLE
+        VERDADERO_FALSO
+        ESCALA
+    }
+
+    Pregunta "1" *-- "2..*" OpcionRespuesta : tiene >
+    Pregunta -right-> TipoPregunta
+}
+
+Factor "1" *-- "0..*" Pregunta : contiene >
+
+' =========================================================================
+' CAPA DE AUTENTICACION DE USUARIOS
+' =========================================================================
+package "Autenticacion de Usuarios" #FFEBEE {
+    abstract class Usuario {
+        - apellido: String
+        - nombre: String
+        - email: String
+    }
+
+    class Candidato {
+        - nroCandidato: Long
+        - tipoDocumento: String
+        - nroDocumento: String
+        - fechaNacimiento: Date
+        - genero: Char
+        - nacionalidad: String
+        - escolaridad: String
+        - eliminado: Boolean
+        - contrasena: String
+    }
+
+    class Consultor {
+        - nombreUsuario: String
+    }
+
+    Usuario <|-- Candidato
+    Usuario <|-- Consultor
+}
+
+' =========================================================================
+' 5. CAPA DE PROCESO Y CANDIDATOS: EVALUACIONES
+' =========================================================================
+package "Evaluacion de Candidatos" #FAFAFA {
+
+    class Cuestionario {
+        - id: Long
+        - clave: String
+        - fechaCreacion: Date
+        - fechaInicio: Date
+        - estado: EstadoCuestionario
+        - cantidadPreguntasPorFactor: Integer
+        - cantidadPreguntasPorBloque: Integer
+        - tiempoMaximoActivo: Integer
+        - tiempoMaximoCompletar: Integer
+    }
+    class BloqueCuestionario {
+        - id: Long
+        - numero: Integer
+        - completado: Boolean
+    }
+    class RespuestaCandidato {
+        - id: Long
+        - fechaRespuesta: Date
+    }
+    class Resultado {
+        - id: Long
+        - puntajeObtenido: Double
+        - puntajeRequerido: Double
+        - fechaCalculo: Date
+    }
+    enum EstadoCuestionario <<enumeration>> {
+        ACTIVO
+        SIN_CONTESTAR
+        EN_PROCESO
+        INCOMPLETO
+        COMPLETO
+    }
+
+    Cuestionario --> EstadoCuestionario
+    Cuestionario "1" *-- "1..*" BloqueCuestionario : divide en >
+    Cuestionario "1" -- "0..*" Resultado : genera >
+    Resultado "1..*" --> "1" Competencia : corresponde a >
+    BloqueCuestionario "1" *-- "1..*" RespuestaCandidato : contiene >
+    RespuestaCandidato "*" --> "1" OpcionRespuesta : selecciona >
+    Resultado "*" --> "1" Candidato : de >
+}
+
+Cuestionario "0..*" -up-> "1" Candidato : rinde >
+Cuestionario "0..*" -up-> "1" Puesto : asociado a >
+RespuestaCandidato "*" -up-> "1" Pregunta : evalúa >
+
+' =========================================================================
+' DEPENDENCIAS DE USO: DE GESTORES A ENTIDADES
+' =========================================================================
+ServiciodeAutenticacion ..> Usuario
+GestorCandidato ..> Candidato
+GestorCandidato ..> Puesto
+GestorCandidato ..> Resultado
+GestorPuesto ..> Puesto
+GestorCompetencia ..> Competencia
+GestorFactor ..> Factor
+GestorPregunta ..> Pregunta
+GestorPregunta ..> OpcionRespuesta
+GestorOpciones ..> OpcionRespuesta
+GestorEvaluaciones ..> Cuestionario
+GestorEvaluaciones ..> Candidato
+GestorEvaluaciones ..> Puesto
+GestorEvaluaciones ..> Resultado
+GestorEvaluaciones ..> RespuestaCandidato
+
+' =========================================================================
+' 6. CAPA DE ACCESO A DATOS (DAO)
+' =========================================================================
+package "Acceso a Datos (DAO)" #EDE7F6 {
+    interface "DAO<T, ID>" as DAO <<interface>> {
+        + guardar(entidad: T): T
+        + buscar(id: ID): T
+        + actualizar(entidad: T): T
+        + eliminar(id: ID): void
+    }
+
+    class PuestoDAOSQL <<DAO de Puesto>>
+    class CompetenciaDAOSQL <<DAO de Competencia>>
+    class FactorDAOSQL <<DAO de Factor>>
+    class PreguntaDAOSQL <<DAO de Pregunta>>
+    class OpcionRespuestaDAOSQL <<DAO de OpcionRespuesta>>
+
+    PuestoDAOSQL ..|> DAO : <Puesto, Long>
+    CompetenciaDAOSQL ..|> DAO : <Competencia, Long>
+    FactorDAOSQL ..|> DAO : <Factor, Long>
+    PreguntaDAOSQL ..|> DAO : <Pregunta, Long>
+    OpcionRespuestaDAOSQL ..|> DAO : <OpcionRespuesta, Long>
+}
+
+GestorPuesto ..> DAO : usa
+GestorCompetencia ..> DAO : usa
+GestorFactor ..> DAO : usa
+GestorPregunta ..> DAO : usa
+GestorOpciones ..> DAO : usa
+
+' =========================================================================
+' DEPENDENCIAS DE USO: DE GESTORES A INTERFACES
+' =========================================================================
+interface IServicioIA {
+    + generarPreguntaConIA(competencia: String, factor: String): String
+}
+
+class Claude implements IServicioIA {
+    + generarPreguntaConIA(competencia: String, factor: String): String
+}
+class Gemini implements IServicioIA {
+    + generarPreguntaConIA(competencia: String, factor: String): String
+}
+
+interface GeneradorReporte {
+    + generarReporte(): void
+    + imprimirReporte(): void
+}
+
+class ReeporteComparativo implements GeneradorReporte {
+    + generarReporte(): void
+    + imprimirReporte(): void
+}
+class ReporteOrdenMerito implements GeneradorReporte {
+    + generarReporte(): void
+    + imprimirReporte(): void
+}
+
+GestorEvaluaciones ..> GeneradorReporte : usa
+GestorPregunta ..> IServicioIA : usa
+
+@enduml
