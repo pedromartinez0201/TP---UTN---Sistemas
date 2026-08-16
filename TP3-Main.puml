@@ -333,7 +333,7 @@ package "Evaluacion de Candidatos" #FAFAFA {
     BloqueCuestionario "1" *-- "1..*" RespuestaCandidato : contiene >
     RespuestaCandidato "*" --> "1" OpcionRespuesta : selecciona >
     Resultado "*" --> "1" Candidato : de >
-    BloqueCuestionario 1 -- "1..*" Pregunta : contiene >
+    BloqueCuestionario "1" -- "1..*" Pregunta : contiene >
 }
 
 Cuestionario "0..*" -up-> "1" Candidato : rinde >
